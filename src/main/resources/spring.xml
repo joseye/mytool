@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd  
+        http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="com.lafengmaker">
+    	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <mvc:default-servlet-handler/>
+    <mvc:annotation-driven />
+    
+     <bean id="propertyOverrider"
+       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+       <property name="locations">
+           <list>
+               <value>classpath:localjdbc.properties</value>
+           </list>
+       </property>
+   </bean>
+    <bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+        <property name="prefix" value="/" />  
+        <property name="suffix" value=".jsp" />
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />  
+    </bean> 
+      <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+       <property name="driverClassName" value="org.sqlite.JDBC" />
+       <property name="url" value="${db.url}" />
+       <property name="username" value="${db.username}" />
+       <property name="password" value="${db.password}" />
+       <property name="maxActive" value="${db.maxActive}" />
+       <property name="maxIdle" value="${db.maxIdle}" />
+       <property name="maxWait" value="${db.maxWait}" />
+   </bean>
+   <!-- transaction manager, use JtaTransactionManager for global tx -->
+   <bean id="transactionManager"
+       class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+       <property name="dataSource" ref="dataSource" />
+   </bean>
+   <tx:annotation-driven transaction-manager="transactionManager" />
+   <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+       <property name="configLocation" value="classpath:mybatis-config.xml" />
+       <property name="dataSource" ref="dataSource" />
+   </bean>
+   <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+       <constructor-arg index="0" ref="sqlSessionFactory" />
+   </bean>
+   <!-- <bean id="authenticator" class="com.webex.oms.common.soap.BLiSAuthenticator">
+		<property name="authurl">
+			<value>${authurl}</value>
+		</property>
+		<property name="username">
+			<value>${username}</value>
+		</property>
+		<property name="password">
+			<value>${password}</value>
+		</property>
+		<property name="defaultEncoding">
+			<value>${defaultEncode}</value>
+		</property>		
+	</bean>
+   <bean id="soapClient" class="com.webex.oms.common.soap.BLiSSOAPClient">
+		<property name="gatewayurl">
+			<value>${gatewayurl}</value>
+		</property>
+		<property name="timeout">
+			<value>${timeout}</value>
+		</property>
+		<property name="authenticator">
+			<ref bean="authenticator"/>
+		</property>
+		<property name="defaultEncoding">
+			<value>${defaultEncode}</value>
+		</property>
+	</bean> -->
+</beans>

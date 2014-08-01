@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="JdbcBean">
+	<resultMap type="com.lafengmaker.tool.bean.JdbcBean" id="JdbcBeanMap"></resultMap>
+   <insert id="insert" parameterType="com.lafengmaker.tool.bean.JdbcBean">
+    INSERT INTO JDBCBEAN(title,name,tns,username,passwd)values(#{title},#{name},#{tns},#{username},#{passwd});
+   </insert>
+   <select id="getAllDBConfig" resultType="com.lafengmaker.tool.bean.JdbcBean">
+  	select * from  JDBCBEAN
+   </select>
+   <delete id="delete" parameterType="com.lafengmaker.tool.bean.JdbcBean">
+    delete from  JDBCBEAN where id=#{id}
+   </delete>
+   <update id="updateOppid" parameterType="java.util.HashMap">
+   update blis_order set STROPPORTUNITYID = #{oppid} where orderid = #{orderid}  
+   </update>
+   <select id="selectContractAndStatusByOrder" resultType="java.util.HashMap" parameterType="String">
+   select M.EXTENTITYID||' ' contractid,O.STATUS from BLIS_ENTITYMAPPING m ,blis_order o where 
+M.BLISENTITYID(+)=O.ORDERID and M.MAPPINGTYPE(+)='order-contract'
+and orderid=#{orderid}
+   </select>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">  
+<configuration>  
+    <settings>  
+        <setting name="cacheEnabled" value="true" />  
+        <setting name="lazyLoadingEnabled" value="true" />  
+        <setting name="aggressiveLazyLoading" value="false" />  
+        <setting name="multipleResultSetsEnabled" value="true" />  
+        <setting name="useColumnLabel" value="true" />  
+        <!-- <setting name="useGeneratedKeys" value="true" /> -->  
+        <setting name="autoMappingBehavior" value="FULL" />  
+        <!-- <setting name="defaultExecutorType" value="BATCH" /> -->  
+        <setting name="jdbcTypeForNull" value="NULL"/>
+        <setting name="defaultStatementTimeout" value="600"/>  
+    </settings>  
+    
+    <typeAliases>
+    <!--  <typeAlias alias="UserReportMapper" type="com.cisco.webex.overage.bean.UserReportMapper"/>
+     <typeAlias alias="OverageDateMapper" type="com.cisco.webex.overage.bean.OverageDateMapper"/>
+     <typeAlias alias="SiteServiceMapper" type="com.cisco.webex.overage.bean.SiteServiceMapper"/>
+     <typeAlias alias="OverageDailyMapper" type="com.cisco.webex.overage.bean.OverageDailyMapper"/>
+     <typeAlias alias="ProcessStatusMapper" type="com.cisco.webex.overage.bean.ProcessStatusMapper"/>
+     <typeAlias alias="OverageIntervalMapper" type="com.cisco.webex.overage.bean.OverageIntervalMapper"/>
+     <typeAlias alias="TelephonyEDRMapper" type="com.cisco.webex.overage.bean.TelephonyEDRBean"/> 
+     <typeAlias alias="DiaryPeakPortsMapper" type="com.cisco.webex.overage.bean.DiaryPeakPortsBean"/> -->
+   </typeAliases>
+   
+   <mappers>  
+       <mapper resource="map/jdbcbean.xml"/> 
+     <!--   <mapper resource="map/rbe_process_log.xml"/>
+        <mapper resource="map/rbpeek_ports_diary.xml"/>
+        <mapper resource="map/site_service_mapper.xml"/> 
+        <mapper resource="map/overage_date_mapper.xml"/> 
+        <mapper resource="map/rbpeek_ports_report.xml"/>  
+        <mapper resource="map/overage_daily_mapper.xml"/> 
+        <mapper resource="map/hgs_telephony_report.xml"/>
+        <mapper resource="map/hgsmeeting_user_report.xml"/>
+        <mapper resource="map/overage_interval_mapper.xml"/>    -->
+    </mappers> 
+</configuration>
