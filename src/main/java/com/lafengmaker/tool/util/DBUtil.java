@@ -1,5 +1,8 @@
 package com.lafengmaker.tool.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSession;
@@ -32,4 +35,7 @@ public class DBUtil {
 	       SqlSession ss = sqlSessionFactory.openSession();
 	       return ss;
 	   }
+		public static <k,v> Map<k, v> newInstance(){
+			return new HashMap<k, v>();
+		}
 }

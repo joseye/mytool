@@ -11,10 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
-import org.dom4j.Node;
 
 import com.lafengmaker.tool.constants.SOAPConstants;
-import com.lafengmaker.tool.util.XMLDataUtil;
 
 /**
  * @package com.webex.sos.common.soap; - BLiSSOAPClient.java
@@ -34,33 +32,19 @@ public class BLiSSOAPClient
 
 	
 	public Document sendSOAPMessage(final String request)throws BLiSSOAPException {
-		return this.sendSOAPMessage(request,timeout);
+		Document d= this.sendSOAPMessage(request,timeout);
+		return d;
 	}
 	
 	public Document sendSOAPMessage(final String request,final long interval)throws BLiSSOAPException{
-		
 		if (sessionId == null){
 			sessionId = authenticator.authenticate();
 		}
-		
 		Document response = this.sendAndReceive(request,interval);
-		
-		//give second chance to send request
 		if (null!=response.selectSingleNode(".//SOAP:Fault/SOAP:faultcode")&&"Client.NotAuthenticated".equalsIgnoreCase(response.selectSingleNode(".//SOAP:Fault/SOAP:faultcode").getText())) {
 			sessionId = getAuthenticator().authenticate();
             response = this.sendAndReceive(request,interval);
         }
-		System.out.println(response.asXML());
-		Node faultNode=response.selectSingleNode(".//SOAP:Fault");
-		if (faultNode !=null){
-			String code=XMLDataUtil.getNodeTextAsStringByPattern(faultNode,"./SOAP:faultcode");
-			String message=XMLDataUtil.getNodeTextAsStringByPattern(faultNode,"./SOAP:faultstring");
-			if (null==message||"".equals(message.trim())){
-				message=XMLDataUtil.getNodeTextAsStringByPattern(faultNode,"./SOAP:detail");
-			}
-			throw new BLiSSOAPException(code,message);
-		}
-		
         return response;
 	}
 	
@@ -83,7 +67,6 @@ public class BLiSSOAPClient
 			sessionURL.append("timeout=").append(timeOutInterval);
 			final URL serviceURL = new URL(sessionURL.toString());
 			
-			//Added the timeout checking.
 			final long start = System.currentTimeMillis();
 	        URLConnection urlconn = serviceURL.openConnection();
 	        HttpURLConnection hcon = (HttpURLConnection) urlconn;
@@ -99,19 +82,12 @@ public class BLiSSOAPClient
 	        out.write(request.getBytes(getDefaultEncoding()));
 	        out.flush();
 
-	        
 	        is = urlconn.getInputStream();
 
 	        //timeout checking here 
 	        final long costtime = System.currentTimeMillis() - start;
-	        if (costtime > timeOutInterval)
-	        {
-	        	throw new BLiSSOAPException("BLiSSOAPClient-sendAndReceive-001","SOAP Timeout Exception at URL [" + getGatewayurl() + "]");
-	        }
-	                
+	        System.out.println("this soap send cost"+costtime/1000+" seconds.");
 	        is = new BufferedInputStream(is);
-	        
-
 	        byte[] byteArray = new byte[SOAPConstants.BUFFER_SIZE];
 	        int iLength = -1;
 	        final StringBuffer sBuffer = new StringBuffer();
@@ -120,9 +96,6 @@ public class BLiSSOAPClient
 	        	sBuffer.append(new String(byteArray, 0, iLength,getDefaultEncoding()));
 	        }
             document = replaceNameSpace(sBuffer.toString());	       
-
-
-		
 		}catch (Exception de)
 		{
 			throw new BLiSSOAPException("build document  error", de);
@@ -132,7 +105,6 @@ public class BLiSSOAPClient
 			IOUtils.closeQuietly(is);
 		}
         return document;
-
 	}
 	
 	/**

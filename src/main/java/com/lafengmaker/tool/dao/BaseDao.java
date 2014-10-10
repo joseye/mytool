@@ -85,7 +85,7 @@ public interface BaseDao {
     * @param entity A parameter object to pass to the statement.
     * @return int The number of rows affected by the delete.
     */
-   int delete(Object entity);
+   int delete(String statement );
    /**
     * Execute a delete statement. The number of rows affected will be returned.
     * 

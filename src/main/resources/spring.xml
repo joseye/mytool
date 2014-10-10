@@ -36,6 +36,19 @@
         <property name="suffix" value=".jsp" />
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />  
     </bean> 
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>5242880</value>
+		</property>
+	</bean>
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error_fileupload</prop>
+			</props>
+		</property>
+	</bean>
+    
       <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
        <property name="driverClassName" value="org.sqlite.JDBC" />
        <property name="url" value="${db.url}" />
@@ -58,6 +71,8 @@
    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
        <constructor-arg index="0" ref="sqlSessionFactory" />
    </bean>
+   <bean id="remotebaseDao" class="com.lafengmaker.tool.dao.impl.BaseDaoImpl" scope="prototype"></bean>
+   <bean id="baseDao" class="com.lafengmaker.tool.dao.impl.BaseDaoImpl" scope="prototype"></bean>
    <!-- <bean id="authenticator" class="com.webex.oms.common.soap.BLiSAuthenticator">
 		<property name="authurl">
 			<value>${authurl}</value>

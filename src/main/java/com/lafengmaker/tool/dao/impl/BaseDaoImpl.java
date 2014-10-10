@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.lafengmaker.tool.dao.BaseDao;
-@Component()
-@Scope(value="prototype")
+//@Component("BaseDao")
+//@Scope(value="prototype")
 public  class BaseDaoImpl implements BaseDao{
 	   @Autowired
 	   private SqlSession sqlSession;
@@ -86,8 +86,8 @@ public  class BaseDaoImpl implements BaseDao{
 	   /**
 	    * {@inheritDoc}
 	    */
-	   public int delete(Object entity) {
-	       return delete("delete", entity);
+	   public int delete(String statement) {
+	       return sqlSession.delete(statement);
 	   }
 	   /**
 	    * {@inheritDoc}
@@ -107,5 +107,6 @@ public  class BaseDaoImpl implements BaseDao{
 		this.sqlSession=session;
 		
 	}
+	
 	   
 }

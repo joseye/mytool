@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+    <title>Grid Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="resources/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+  <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="welcome.do">GTM Dev Tool</a>
+        </div>
+        <div class="navbar-collapse collapse" >
+          <ul class="nav navbar-nav" > 
+            <li ><a href="welcome.do" >Home</a></li>
+            <li><a href="welcome.do" >DownLoad</a></li>
+           <li class="active"><a href="howto.html">How to Use</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+             <li><a href="howto.html">placeholder</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+    <div class="container" style="margin-top: 50px;">
+
+      <div class="page-header">
+        <h1>How to use to tool</h1>
+        <p class="lead">how to use it.</p>
+      </div>
+
+      <h3>End Complete Order</h3>
+      <div>
+      	<ul>
+      	<li>Input order id to the textarea, then double click to generate end-complete xml, then click execute to send soap.</li>
+      	<li>Input order id to the textarea,   then click execute to send soap.</li>
+      	</ul>
+      </div>
+      <h3>Send Soap</h3>
+      <div>
+      	<ul>
+      	<li>Input soap xml to the textarea,   then click execute to send soap.</li>
+      	</ul>
+      </div>
+      <h3>execute sql</h3>
+      <div>
+      	<ul>
+      	<li>Input sql list to the textarea,   then click execute to execute query.</li>
+      	<li>Drap sql file to the textarea, then drop, then click execute to execute query.<font color="red">(only support ie10+,chrome, firefox)</font>,then click execute</li>
+      	</ul>
+      </div>
+      <h3>update deal id </h3>
+      <div>
+      	<ul>
+      	<li>input updateoppid:{orderid}, then click execute,example:updateoppid:600220</li>
+      	</ul>
+      </div>
+	</div>
+  </body>
+</html>

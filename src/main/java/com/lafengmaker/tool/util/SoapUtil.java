@@ -51,13 +51,9 @@ public class SoapUtil {
 		 return writer.toString();
 	}
 	private Template getTemplate(final String filename, final Locale locale, final String encode)	throws IOException, TemplateException{
-			if(null!=template){
-				return template;
-			}
 		     Configuration config=new Configuration();
 		     TemplateLoader loader=new ClassTemplateLoader(this.getClass(),"/soap");		
 		     config.setTemplateLoader(loader);
-//		     config.setDirectoryForTemplateLoading(new File("soap"));
 			if (locale == null && encode == null)
 			{
 				template = config.getTemplate(filename);
