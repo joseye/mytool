@@ -43,7 +43,7 @@
 		</ul>
 		<div class="tab-content">
 		  <div class="tab-pane active" id="home">
-		  <textarea id="inputcontent" rows="15" cols="150" id="soap" placeholder="Please input your soap here or input orderid then double click to generate end-complete soap." ondblclick="generateECXml()" required></textarea><br/>
+		  <textarea id="inputcontent" rows="15" cols="150" id="soap" placeholder="Please input your soap here or input orderid then double click to generate end-complete soap." ondblclick="setupdateoppid()" required></textarea><br/>
 			<div id="dblist"  class="form-inline;" style="margin-top: 20px;"></div>
 			<div id="message" style="font-family: fantasy;font-size: x-large;font-weight: bold;"></div>
 		   <input type="button"  class="btn btn-primary"  value="execute" onclick='sendSoap();' />
@@ -69,7 +69,6 @@ function myclear(){
 	$("#inputcontent").val("");
 	initQueryDiv();
 }
-
 function loaddata(){
 	if(md5){
 		$.get("loadData.do?md5="+md5+"&load="+load+"&count="+count,function(data){
@@ -141,64 +140,62 @@ String.prototype.RTrim = function()
 {  
 return this.replace(/(\s*$)/g, "");  
 }  
-function generateECXml(){
+function checkNum(str){
+	var reg = new RegExp("^[0-9]*$");
+	 if(!reg.test(str)){
+		 alert('orderid must be a numnber');
+		 $("#inputcontent").val("");
+		 return false ;
+	 }
+	 return true;
+}
+
+function setupdateoppid(){
 	var sinput=$("#inputcontent").val();
-	if(!sinput){
-		alert('Please input orderid or soap');
-		return;
+	if(!checkNum(sinput)){
+		return ;
 	}
-	if(sinput.indexOf('select')>-1){
-		return;
-	}
-	if(sinput.indexOf('updateoppid:')>-1){
-		return;
+	 $("#inputcontent").val("updateoppid:"+sinput);
+}
+function generateECXml(sinput){
+	if(!checkNum(sinput)){
+		return ;
 	}
 	if(!(sinput.indexOf('SOAP:Envelope xmlns:SOAP')>-1)){
-		sinput=sinput.Trim();
-		 var reg = new RegExp("^[0-9]*$");
-		 if(!reg.test(sinput)){
-			 alert('orderid must be a numnber');
-			 $("#inputcontent").val("");
-			 return ;
-		 }
 		 var ecxml="<SOAP:Envelope xmlns:SOAP=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"+
 		 "	<SOAP:Body>                                                        \n"+
 		 "		<InsertPortfolio xmlns=\"http://www.webex.com/blis/1.0/custom\"> \n"+
-		 "			<OrderID>${orderid}</OrderID>                              \n"+
+		 "			<OrderID>{orderid}</OrderID>                              \n"+
 		 "			<CreatedBy>1</CreatedBy>                                   \n"+
 		 "		</InsertPortfolio>                                             \n"+
 		 "	</SOAP:Body>                                                       \n"+
-		 "</SOAP:Envelope>                                                      ";
-		 $("#inputcontent").val(ecxml.replace(/\$\{orderid\}/,sinput))
+		 "</SOAP:Envelope>";
+		 $("#inputcontent").val(ecxml.replace(/\{orderid\}/,sinput))
 	}
 }
 function sendSoap(){
 	var sinput=$("#inputcontent").val();
 	var select=$('input[name="env"]:checked').val();
+	sinput=sinput.Trim();
+	if(!sinput){
+		alert('Please input orderid or soap');
+	}
+	//query DB
 	if(sinput.indexOf('select')>-1){
 		queryDB(select,sinput);
 		return ;
+	}else{
+		if(sinput.indexOf('updateoppid:')==-1){
+			generateECXml(sinput);
+		}
+		sinput=$("#inputcontent").val();
+		$.get("sendSoap.do?env="+select+"&soap="+sinput,function(data){
+			 $("#xmlresult").val(data);
+			 $("#xmlresult").show();
+			 $("#queryresult").hide();
+			$('#myTab a:last').tab('show')
+		 });
 	}
-	generateECXml();
-	if(sinput.indexOf('updateoppid:')>-1){
-		sinput=sinput.substr(12);
-		 var reg = new RegExp("^[0-9]*$");
-		 if(!reg.test(sinput)){
-			 alert('please input orderid atfer updateoppid:');
-			 return;
-		 }
-	}
-	var sinput=$("#inputcontent").val();
-	if(!sinput){
-		return 
-	}
-	
-	$.get("sendSoap.do?env="+select+"&soap="+sinput,function(data){
-		 $("#xmlresult").val(data);
-		 $("#xmlresult").show();
-		 $("#queryresult").hide();
-		$('#myTab a:last').tab('show')
-	 });
 }
 function initQueryDiv(){
 	//var str="<div class=\"row\" >    <div class=\"col-md-1\">index</div>    <div class=\"col-md-5\">sql</div>   <div class=\"col-md-1\">cost</div>  <div class=\"col-md-3\">rsult</div></div>";
