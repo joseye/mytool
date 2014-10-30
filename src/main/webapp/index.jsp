@@ -158,10 +158,10 @@ function setupdateoppid(){
 	 $("#inputcontent").val("updateoppid:"+sinput);
 }
 function generateECXml(sinput){
-	if(!checkNum(sinput)){
-		return ;
-	}
 	if(!(sinput.indexOf('SOAP:Envelope xmlns:SOAP')>-1)){
+		if(!checkNum(sinput)){
+			return ;
+		}
 		 var ecxml="<SOAP:Envelope xmlns:SOAP=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"+
 		 "	<SOAP:Body>                                                        \n"+
 		 "		<InsertPortfolio xmlns=\"http://www.webex.com/blis/1.0/custom\"> \n"+
