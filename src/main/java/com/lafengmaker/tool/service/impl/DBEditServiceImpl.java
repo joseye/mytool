@@ -172,10 +172,10 @@ public class DBEditServiceImpl implements  DBEditService {
 			logger.error("No orderid:    "+orderid+" found  in  "+jdbcBean.getName()+"   DB,"+jdbcBean.getTns());
 			throw new RuntimeException("No orderid:    "+orderid+" found  in  "+jdbcBean.getName()+"   DB,");
 		}
-		String status=mp.get("STATUS");
-		if(!OrderConstants.ORDER_STATUS_ACCEPTED.equals(status)){
-			throw new Exception("Order status is "+status+" not  accepted.");
-		}
+//		String status=mp.get("STATUS");
+//		if(!OrderConstants.ORDER_STATUS_ACCEPTED.equals(status)){
+//			throw new Exception("Order status is "+status+" not  accepted.");
+//		}
 		return null;
 	}
 	private String getFailStr(Document response){

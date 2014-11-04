@@ -152,6 +152,10 @@ function checkNum(str){
 
 function setupdateoppid(){
 	var sinput=$("#inputcontent").val();
+	sinput=sinput.Trim();
+	if(!sinput){
+		return ;
+	}
 	if(!checkNum(sinput)){
 		return ;
 	}
