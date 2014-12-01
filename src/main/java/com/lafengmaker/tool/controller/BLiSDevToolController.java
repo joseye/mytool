@@ -3,6 +3,7 @@ package com.lafengmaker.tool.controller;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -17,8 +20,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.dom4j.Document;
-import org.dom4j.io.DOMWriter;
+import org.dom4j.Node;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.InputSource;
 
 import com.alibaba.fastjson.JSON;
 import com.lafengmaker.tool.bean.JdbcBean;
@@ -55,27 +58,44 @@ public class BLiSDevToolController {
 		String soap=getParameter(request,"soap");
 		try {
 			JdbcBean jdbcBean=getEnvInfo(request, env);
-			if(soap.indexOf("SOAP:Envelope xmlns:SOAP")>-1){
-				Document  result= this.dbEditService.sendSoap(soap, jdbcBean);
+			logger.debug("send soap");
+			logger.debug(soap);
+			if(soap.indexOf("SOAP:Envelope")>-1){
+				//check the soap format
+				try {
+					parseDoc(soap);
+				} catch (Exception e) {
+					throw new RuntimeException("the send soap not well formed.");	
+				}
+				Node  result= this.dbEditService.sendSoap(soap, jdbcBean);
 				TransformerFactory tf = TransformerFactory.newInstance();  
 				Transformer transformer = tf.newTransformer();  
 				StringWriter sw= new StringWriter();
 				transformer.setOutputProperty(OutputKeys.INDENT, "yes");  
 				transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-				StreamResult xmlResult = new StreamResult(sw);  
-				org.w3c.dom.Document w3cDoc = new DOMWriter().write(result);
-				transformer.transform(new DOMSource(w3cDoc), xmlResult);  
-				System.out.println("xxxx\n"+sw.toString());
+				StreamResult xmlResult = new StreamResult(sw);
+				org.w3c.dom.Document doc=parseDoc(result.asXML());
+				transformer.transform(new DOMSource(doc), xmlResult);  
+				logger.info(sw.toString());
 				return sw.toString();
-			}else{
+			}else if(soap.indexOf("oppidupdate")>-1){
 				return this.dbEditService.updateoppid(soap, jdbcBean);
+			}else{
+				throw new  RuntimeException("no action match to"+soap);
 			}
 		} catch (Exception e) {
 			logger.error("send error", e);
 			return e.getMessage();
 		}
 	}
-	
+	private org.w3c.dom.Document parseDoc(String xml) throws Exception{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();  
+		DocumentBuilder db = dbf.newDocumentBuilder();  
+		StringReader sr=new StringReader(xml);
+		 InputSource is=new InputSource(sr);
+		return  db.parse(is);  
+		
+	}
 	@RequestMapping(value = "getDBInfos.do")
 	@ResponseBody
 	public String getDblists(HttpServletRequest request, ModelMap modelMap){
@@ -90,8 +110,7 @@ public class BLiSDevToolController {
 		String sqls=getParameter(request,"sqls");
 		try {
 			JdbcBean jdbcBean=getEnvInfo(request, env);
-			//return dbEditService.executeSQList(jdbcBean, sqls);
-			return this.dbEditService.executeSQListAsync(jdbcBean, sqls);
+			return this.dbEditService.executeSQList(jdbcBean, sqls);
 		} catch (Exception e) {
 			logger.error("executeQuery", e);
 			return e.getMessage();
@@ -100,11 +119,13 @@ public class BLiSDevToolController {
 	@RequestMapping(value = "loadData.do")
 	@ResponseBody
 	public String loadData(HttpServletRequest request, ModelMap modelMap){
+		Map<String,JdbcBean> jdbcmap=getMapFromSession(request);
 		String md5=getParameter(request,"md5");
 		String load=getParameter(request,"load");
 		String count=getParameter(request,"count");
+		String startquery=getParameter(request,"startquery");
 		try {
-			return dbEditService.loadandUpdateStatus(md5, getLong(load), getLong(count));
+			return dbEditService.loadResultandUpdateStatus(md5, getLong(load), getLong(count), jdbcmap,startquery);
 		} catch (Exception e) {
 			logger.error("executeQuery", e);
 			return e.getMessage();
@@ -145,53 +166,6 @@ public class BLiSDevToolController {
 		}
 		
 	}
-//	@RequestMapping(value = "updateOpp.do")
-//	@ResponseBody
-//	public String updateOppid(HttpServletRequest request, ModelMap modelMap){
-//		String env=getParameter(request,"env");
-//		String orderid=getParameter(request,"orderid");
-//		String oppid=getParameter(request,"oppid");
-//		try {
-//			JdbcBean jdbcBean=getEnvInfo(request, env);
-//			String result=this.dbEditService.acceptOrder(orderid, oppid, jdbcBean);
-//			return result;
-//		} catch (Exception e) {
-//			logger.error("accept order  error", e);
-//			return e.getMessage();
-//		}
-//	}
-
-//	@RequestMapping(value = "endcomplete.do")
-//	@ResponseBody
-//	public String endcompleteOrder(HttpServletRequest request, ModelMap modelMap){
-//		String env=getParameter(request,"env");
-//		String orderid=getParameter(request,"orderid");
-//		String finalString=null;
-//		try {
-//			JdbcBean jdbcBean=getEnvInfo(request, env);
-//			finalString= 	this.dbEditService.endcompleteOrder(orderid, jdbcBean);
-//		} catch (Exception e) {
-//			logger.error("send soap error", e);
-//			finalString= e.getMessage();
-//		}
-//		logger.info("endcompletefinalString"+finalString);
-//		return finalString;
-//		
-//	}
-	
-//	@RequestMapping(value = "getOrdersatus.do")
-//	@ResponseBody
-//	public String getOrderstatus(HttpServletRequest request, ModelMap modelMap){
-//		String env=request.getParameter("env");
-//		String orderid=request.getParameter("orderid");
-//		try {
-//			JdbcBean jdbcBean=getEnvInfo(request, env);
-//			return dbEditService.getOderStatusAndContractId(orderid, jdbcBean);
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//			return e.getMessage();
-//		}
-//	}
 	private String getParameter(HttpServletRequest request,String pname){
 		String pp=request.getParameter(pname);
 		if(null!=pp){

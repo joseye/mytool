@@ -3,13 +3,15 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
 <mapper namespace="JdbcBean">
 	<resultMap type="com.lafengmaker.tool.bean.JdbcBean" id="JdbcBeanMap"></resultMap>
+	<resultMap type="com.lafengmaker.tool.bean.SqlBean" id="sqlbean"></resultMap>
+	<parameterMap type="com.lafengmaker.tool.bean.SqlBean" id="psqlbean"></parameterMap>
    <insert id="insertlog" parameterType="java.util.HashMap">
    	insert into uselog(machine,ip) values(#{machine},#{ip})
    </insert>
    <insert id="insertsql" parameterType="java.util.HashMap">
-   	insert into sqllist(seq,sql,md5,status) values(#{seq},#{sql},#{md5},#{status})
+   	insert into sqllist(seq,sql,md5,status,env) values(#{seq},#{sql},#{md5},#{status},#{env})
    </insert>
-   <select id="selectSql"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
+   <select id="selectSql"  parameterType="String" resultMap="sqlbean">
    	select * from sqllist where status=0 and md5=#{md5} order by seq  
    </select>
    <select id="selectdoneSql"  parameterType="String" resultType="java.util.HashMap">
@@ -19,10 +21,10 @@
    	select count(*) from sqllist where   md5=#{_parameter} 
    </select>
    <delete id="deletetooOldData">
-   	delete from sqllist where addtime <![CDATA[<]]> datetime('now','-200 DAY')
+   	delete from sqllist where addtime <![CDATA[<]]> datetime('now','-20 DAY')
    </delete>
-   <update id="updateSql" parameterType="java.util.HashMap" >
-   	update sqllist set cost=#{cost},result=#{result},color=#{color},status=1 where id=#{id}
+   <update id="updateSql" parameterMap="psqlbean" >
+   	update sqllist set cost=#{cost},result=#{result},status=1 where id=#{id}
    </update>
    <update id="updateLoadSql"  >
    	update sqllist set status=2 where id=#{id}

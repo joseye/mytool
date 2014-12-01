@@ -15,10 +15,34 @@
 	  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 	  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 	<![endif]-->
+	<style type="text/css">
+	#mask{
+		background-image:url("resources/images/loading.gif");
+		background-repeat:no-repeat;
+		background-position:center center ;
+		position: absolute;
+		left: 0;
+		top:0;
+		width: 100%;
+		height: 100%;
+		background-color: #ddd;
+		opacity: 0.5;
+		display: none;
+		/* opacity: 0.5;
+    	filter: Alpha(opacity=50); */
+		
+		/* z-index: 9999; */
+		
+	}
+	#query{
+		display: block;
+	}
+	
+	</style>
 </head>
 <body>
     <!-- Fixed navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation"  >
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand" href="welcome.do">GTM Dev Tool</a>
@@ -42,73 +66,55 @@
 		  <li><a href="#profile" role="tab" data-toggle="tab">Result</a></li>
 		</ul>
 		<div class="tab-content">
-		  <div class="tab-pane active" id="home">
-		  <textarea id="inputcontent" rows="15" cols="150" id="soap" placeholder="Please input your soap here or input orderid then double click to generate end-complete soap." ondblclick="setupdateoppid()" required></textarea><br/>
+		  <div  class="tab-pane active" id="home" data-toggle="context" data-target="#context-menu" style="background-color: #DDDDFF;" >
+		  <textarea id="inputcontent" data-toggle="context"   rows="15" cols="150" id="soap" placeholder="Please input your soap here or input orderid then double click to generate end-complete soap."  required></textarea><br/>
 			<div id="dblist"  class="form-inline;" style="margin-top: 20px;"></div>
 			<div id="message" style="font-family: fantasy;font-size: x-large;font-weight: bold;"></div>
 		   <input type="button"  class="btn btn-primary"  value="execute" onclick='sendSoap();' />
 		   <input type="button"  class="btn btn-primary"  value="Clear" onclick="myclear();" />
 		  </div>
 		  <div class="tab-pane" id="profile">
-		  <textarea rows="15" cols="150" id="xmlresult"></textarea>
-		  <div id="queryresult" class="table-responsive">
-		  </div>
+		  	<textarea rows="15" cols="150" id="xmlresult" readonly="readonly" ></textarea>
+		  <div  class="table-responsive">
+		  	<div class="progress" id="query">
+			  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 20%;"></div>
 			  
+			</div>
+			<div id="queryresult"></div>
+		  </div>
 		  </div>
 		</div>
 	</div> <!-- /container -->
-	
+	<div id="context-menu" >
+  <ul class="dropdown-menu" role="menu">
+    <li><a tabindex="-1" href="#" id="updatedealidmenu">Update dealid</a></li>
+  </ul>
+</div>
+  <div id="mask"></div>
 <script src="resources/js/jquery-1.11.1.min.js"></script>
 <script src="resources/js/bootstrap.min.js"></script>
 <script src="resources/js/icheck.min.js"></script>
 <script src="resources/js/html5shiv.js"></script>
+<script src="resources/js/bootstrap-contextmenu.js"></script>
+<script src="resources/js/userfile/loopload.js"></script>
+<script src="resources/js/userfile/uploadfile.js"></script>
 <script type="text/javascript">
-md5="",load=0,count=0,user="";
+
 function myclear(){
 	$("#xmlresult").val("");
 	$("#inputcontent").val("");
 	initQueryDiv();
+	$("#message").html("");
 }
-function loaddata(){
-	if(md5){
-		$.get("loadData.do?md5="+md5+"&load="+load+"&count="+count,function(data){
-			var json=eval(data);
-			load=json.load;
-			count=json.count;
-			var flag=json.flag;
-			if(flag=='false'){
-				md5=null;
-				//alert('all data has been load.');
-			}
-			var list=json.list;
-			if(list){
-				var str;
-				$.each(list, function(i, o) {
-					str+="<tr><td>"+o.index+"</td><td>"+o.sql+"</td><td>"+o.cost+"</td><td>";
-					if(o.color){
-						str+="<font color='"+o.color+"'>";
-					}
-					str+=o.result
-					if(o.color){
-						str+="</font>";
-					}
-					str+="</td></tr>" 
-				});
-				$("#appendbody").append(str);
-			}
-			
-		});
-	}
-}
-setInterval(loaddata,15000);
+
 
 $(function(){ 
 	$("#xmlresult").hide();
 	$("#queryresult").show();
-	/*$('.navbar-nav a').click(function (e) {
-	  e.preventDefault();
-	  $(this).tab('show')
-	});*/
+	$('.contextmenu').contextmenu();	
+	$("#updatedealidmenu").click(function(){
+		setupdateoppid();
+	});
 	$.get("getDBInfos.do",function(data){
 	     var json = $.parseJSON(data);
 	     $(json).each(function(index, obj){
@@ -128,23 +134,11 @@ $(function(){
 	     
 	 });
 }) ;
-String.prototype.Trim = function()  
-{  
-return this.replace(/(^\s*)|(\s*$)/g, "");  
-}  
-String.prototype.LTrim = function()  
-{  
-return this.replace(/(^\s*)/g, "");  
-}  
-String.prototype.RTrim = function()  
-{  
-return this.replace(/(\s*$)/g, "");  
-}  
 function checkNum(str){
 	var reg = new RegExp("^[0-9]*$");
 	 if(!reg.test(str)){
-		 alert('orderid must be a numnber');
-		 $("#inputcontent").val("");
+		// alert('orderid must be a numnber');
+		 //$("#inputcontent").val("");
 		 return false ;
 	 }
 	 return true;
@@ -159,9 +153,12 @@ function setupdateoppid(){
 	if(!checkNum(sinput)){
 		return ;
 	}
-	 $("#inputcontent").val("updateoppid:"+sinput);
+	 $("#inputcontent").val("oppidupdate:"+sinput);
 }
 function generateECXml(sinput){
+	if(!sinput){
+		return ;
+	}
 	if(!(sinput.indexOf('SOAP:Envelope xmlns:SOAP')>-1)){
 		if(!checkNum(sinput)){
 			return ;
@@ -177,35 +174,72 @@ function generateECXml(sinput){
 		 $("#inputcontent").val(ecxml.replace(/\{orderid\}/,sinput))
 	}
 }
-function sendSoap(){
+function showloading(){
+	$("#mask").show();
+}
+function hideloading(){
+	$("#mask").animate({opacity:'toggle'},1000);
+	/* $("#mask").hide(); */
+}
+function loadInputcontent(){
 	var sinput=$("#inputcontent").val();
-	var select=$('input[name="env"]:checked').val();
 	sinput=sinput.Trim();
+	return sinput;
+}
+function sendSoap(){
+	$("#xmlresult").val("");
+	var sinput=loadInputcontent();
+	var select=$('input[name="env"]:checked').val();
+	
 	if(!sinput){
 		alert('Please input orderid or soap');
+		return ;
 	}
 	//query DB
-	if(sinput.indexOf('select')>-1){
+	var start=sinput.substr(0,6);
+	start=start.toLowerCase();
+	if(start=='select'||start=='update'||start=='delete'||start=='insert'){
 		queryDB(select,sinput);
 		return ;
 	}else{
-		if(sinput.indexOf('updateoppid:')==-1){
+		if(sinput.indexOf('oppidupdate:')==-1){
 			generateECXml(sinput);
+			sinput=loadInputcontent();
 		}
-		sinput=$("#inputcontent").val();
-		$.get("sendSoap.do?env="+select+"&soap="+sinput,function(data){
-			 $("#xmlresult").val(data);
-			 $("#xmlresult").show();
-			 $("#queryresult").hide();
-			$('#myTab a:last').tab('show')
-		 });
+		if(sinput.indexOf('SOAP:Envelope xmlns:SOAP')==-1 && sinput.indexOf('oppidupdate:')==-1){
+			return;
+		}
+		$.ajax({  
+            url: "sendSoap.do",  
+            data: {env:select,soap:sinput},           
+            method: "post",  
+            beforeSend:function(){
+            	showloading();
+            },  
+            complete:function(data){  
+            	hideloading();
+        	},  
+            success: function(data) {  
+            	copytoboard(data);
+	   			$("#xmlresult").val(data);
+	   			$("#xmlresult").show();
+	   			$("#queryresult").hide();
+	   			$('#myTab a:last').tab('show'); 
+            }  
+        }); 
 	}
 }
+function copytoboard(str){
+	try{
+		if(document.all){
+			window.clipboardData.setData("Text",str); 
+		}else{
+			//alert(' only can copy in IE');
+		}
+	} catch(err) {}
+}
 function initQueryDiv(){
-	//var str="<div class=\"row\" >    <div class=\"col-md-1\">index</div>    <div class=\"col-md-5\">sql</div>   <div class=\"col-md-1\">cost</div>  <div class=\"col-md-3\">rsult</div></div>";
-	var table="<table class=\"table table-striped\">    <thead>    <tr>      <th>#</th>      <th>sql</th>      <th>cost</th>      <th>result</th></tr></thead><tbody id=\"appendbody\"></tbody></table>"
 	$("#queryresult").html("");
-	$("#queryresult").append(table);
 }
 function queryDB(env,str){
 	$.post("executeQuery.do",{env:env,sqls:str},function(data){
@@ -214,78 +248,27 @@ function queryDB(env,str){
 		$('#myTab a:last').tab('show');
 		var json=eval(data);
 		initQueryDiv();
-		md5=json.md5;
-		var str="<div class=\"col-md-9\">init successfully,,,,md5 fro this query is:"+md5+"<div>";
+		loop_md5=json.md5;
+		loop_count=json.total;
+		$("#query .progress-bar-info").css("width",progress+"%");
+		$("#query .progress-bar-info").text(progress+" %");
+		$("#query").show();
+		var str="<div class=\"col-md-9\">init successfully, please wait,,,"+loop_md5+"<div>";
 		$("#queryresult").append(str);
 	 });
 }
-
-handleFiles = function(files) {  
-	for (var i = 0; i < files.length; i++) {
-		var xhr = new XMLHttpRequest();  
-		var form = new FormData();
-	    form.append("file",files[i]);
-	    xhr.onload = function () {
-	    	var json=eval(xhr.responseText);
-	    	$("#inputcontent").val(json.content);
-	    	$("#message").html("total line is <font color='red'>"+json.total+"</font>.");
-	    };
-	    xhr.open("POST", "uploadFile.do");
-	    xhr.send(form);
-	}
-}  
-
-document.addEventListener("dragenter", function(e){  
-	inputcontent.style.borderColor = 'gray';  
-}, false);  
-document.addEventListener("dragleave", function(e){  
-	inputcontent.style.borderColor = 'gray';  
-}, false);  
-inputcontent.addEventListener("dragenter", function(e){  
-	inputcontent.style.borderColor = 'gray';  
-	inputcontent.style.backgroundColor = 'white';  
-}, false);  
-inputcontent.addEventListener("dragleave", function(e){  
-	inputcontent.style.backgroundColor = 'transparent';  
-}, false);  
-inputcontent.addEventListener("dragenter", function(e){  
-    e.stopPropagation();  
-    e.preventDefault();  
-}, false);  
-inputcontent.addEventListener("dragover", function(e){  
-    e.stopPropagation();  
-    e.preventDefault();  
-}, false);  
-inputcontent.addEventListener("drop", function(e){  
-    e.stopPropagation();  
-    e.preventDefault();  
-    if(!e.dataTransfer.files){
-    	alert('Your browser could not support drag and drop to upload file.Please try to copy you sql here or try it in chrome or firefox.');
-    	return ;
-    }
-    if(e.dataTransfer.files.length==0){
-    	return;
-    }
-    handleFiles(e.dataTransfer.files);  
-}, false);
-
-function loadUSer(){
-	try{
-		var locator = new ActiveXObject ("WbemScripting.SWbemLocator"); 
-		var service = locator.ConnectServer(".");
-		var properties = service.ExecQuery("SELECT * FROM Win32_UserAccount");
-		var e = new Enumerator (properties);
-		for (;!e.atEnd();e.moveNext ()){
-			var p = e.item ();
-			user=p.Domain;
-			break;
-			
-		}
-	}catch(e){
-		
-	}
-}
-
- </script>
+String.prototype.Trim = function()  
+{  
+	return this.replace(/(^\s*)|(\s*$)/g, "");  
+} ; 
+String.prototype.LTrim = function()  
+{  
+return this.replace(/(^\s*)/g, "");  
+}  ;
+String.prototype.RTrim = function()  
+{  
+return this.replace(/(\s*$)/g, "");  
+}  ;
+</script>
 </body>
 </html>
