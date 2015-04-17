@@ -78,7 +78,7 @@ public class BLiSDevToolController {
 				transformer.transform(new DOMSource(doc), xmlResult);  
 				logger.info(sw.toString());
 				return sw.toString();
-			}else if(soap.indexOf("oppidupdate")>-1){
+			}else if(soap.indexOf("oppid")>-1){
 				return this.dbEditService.updateoppid(soap, jdbcBean);
 			}else{
 				throw new  RuntimeException("no action match to"+soap);

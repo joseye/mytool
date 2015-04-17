@@ -156,11 +156,15 @@ public class DBEditServiceImpl implements  DBEditService {
 
 	public String updateoppid(String orderid, JdbcBean jdbcBean) throws Exception {
 		initRemotebaseDao(jdbcBean);
+		String action=orderid.split(":")[0];
 		String oid=orderid.split(":")[1];
-		logger.info("update oppid for:"+oid+":==");
+		logger.info("action:"+action+" oppid for:"+oid+":=="+"env"+jdbcBean.getName());
 		Map<String, String>p=DBUtil.newInstance();
 		p.put("orderid", oid.trim());
-		this.remotebaseDao.update("updateoppid",p);
+		if("oppidupdate".equals(action))
+			this.remotebaseDao.update("updateoppid",p);
+		if("oppidclear".equals(action))
+			this.remotebaseDao.update("clearoppid",p);
 		return "update oppid for"+orderid+" success.";
 	}
 

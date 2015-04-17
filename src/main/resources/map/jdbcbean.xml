@@ -46,6 +46,9 @@ and orderid=#{orderid}
   	<update id="updateoppid"  parameterType="java.util.HashMap" >
   		update blis_order set STROPPORTUNITYID = '1019969' where orderid = #{orderid}  
   	</update>   
+  	<update id="clearoppid"  parameterType="java.util.HashMap" >
+  		update blis_order set STROPPORTUNITYID = '1019969xx' where STROPPORTUNITYID = #{orderid}  
+  	</update>   
   	<update id="updateNamescheckbyorderid" parameterType="java.util.HashMap">
   	update blis_order set namecheck='Done' where orderid  = #{orderid}  
    </update>

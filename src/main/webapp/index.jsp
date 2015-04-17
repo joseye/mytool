@@ -87,7 +87,8 @@
 	</div> <!-- /container -->
 	<div id="context-menu" >
   <ul class="dropdown-menu" role="menu">
-    <li><a tabindex="-1" href="#" id="updatedealidmenu">Update dealid</a></li>
+    <li><a tabindex="-1" href="#"  class="clickmenu">update dealid</a></li>
+    <li><a tabindex="-1" href="#"  class="clickmenu">clear dealid</a></li>
   </ul>
 </div>
   <div id="mask"></div>
@@ -112,8 +113,8 @@ $(function(){
 	$("#xmlresult").hide();
 	$("#queryresult").show();
 	$('.contextmenu').contextmenu();	
-	$("#updatedealidmenu").click(function(){
-		setupdateoppid();
+	$(".clickmenu").click(function(){
+		setupdateoppid($(this).text());
 	});
 	$.get("getDBInfos.do",function(data){
 	     var json = $.parseJSON(data);
@@ -144,7 +145,7 @@ function checkNum(str){
 	 return true;
 }
 
-function setupdateoppid(){
+function setupdateoppid(action){
 	var sinput=$("#inputcontent").val();
 	sinput=sinput.Trim();
 	if(!sinput){
@@ -153,7 +154,8 @@ function setupdateoppid(){
 	if(!checkNum(sinput)){
 		return ;
 	}
-	 $("#inputcontent").val("oppidupdate:"+sinput);
+	var action=action.split(" ")[0];
+	 $("#inputcontent").val("oppid"+action+":"+sinput);
 }
 function generateECXml(sinput){
 	if(!sinput){
@@ -202,11 +204,10 @@ function sendSoap(){
 		queryDB(select,sinput);
 		return ;
 	}else{
-		if(sinput.indexOf('oppidupdate:')==-1){
 			generateECXml(sinput);
-			sinput=loadInputcontent();
-		}
-		if(sinput.indexOf('SOAP:Envelope xmlns:SOAP')==-1 && sinput.indexOf('oppidupdate:')==-1){
+		if(sinput.indexOf('SOAP:Envelope xmlns:SOAP')==-1 && sinput.indexOf('oppidupdate:')==-1 &&
+				sinput.indexOf('oppidclear:')==-1		
+		){
 			return;
 		}
 		$.ajax({  
